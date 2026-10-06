@@ -1,0 +1,60 @@
+{% macro experience_entry(item) %}
+<div class="entry">
+    <div class="grid">
+        <label>Компания
+            <input type="text" name="experience_company" value="{{ item.company }}">
+        </label>
+        <label>Должность
+            <input type="text" name="experience_position" value="{{ item.position }}">
+        </label>
+        <label>Начало работы
+            <input type="month" name="experience_start" value="{{ item.start }}">
+        </label>
+        <div>
+            <label>Окончание
+                <input type="month" name="experience_end" value="{{ item.end }}"
+                       {% if item.current %}readonly{% endif %}>
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" data-current-toggle {% if item.current %}checked{% endif %}>
+                По настоящее время
+            </label>
+            <input type="hidden" name="experience_current" value="{{ '1' if item.current else '0' }}">
+        </div>
+    </div>
+    <label>Обязанности и достижения
+        <textarea name="experience_description" rows="12" data-autogrow
+                  placeholder="- Разработал сервис...&#10;- Сократил время ответа API на 40%">{{ item.description }}</textarea>
+    </label>
+    <button type="button" class="btn-link" data-remove-entry>Удалить</button>
+</div>
+{% endmacro %}
+
+{% macro year_select(name, selected) %}
+<select name="{{ name }}">
+    <option value="">—</option>
+    {% for year in education_years %}
+    <option value="{{ year }}" {% if selected == year | string %}selected{% endif %}>{{ year }}</option>
+    {% endfor %}
+</select>
+{% endmacro %}
+
+{% macro education_entry(item) %}
+<div class="entry">
+    <div class="grid">
+        <label>Учебное заведение
+            <input type="text" name="education_institution" value="{{ item.institution }}">
+        </label>
+        <label>Специальность / степень
+            <input type="text" name="education_degree" value="{{ item.degree }}">
+        </label>
+        <label>Год начала
+            {{ year_select("education_start", item.start) }}
+        </label>
+        <label>Год окончания (или ожидаемый)
+            {{ year_select("education_end", item.end) }}
+        </label>
+    </div>
+    <button type="button" class="btn-link" data-remove-entry>Удалить</button>
+</div>
+{% endmacro %}

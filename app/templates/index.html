@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% from "_macros.html" import experience_entry, education_entry with context %}
+
+{% block content %}
+{% if errors %}
+<div class="errors" role="alert">
+    <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="layout">
+<form id="resume-form" method="post" action="{{ url_for('resume.generate') }}"
+      enctype="multipart/form-data" data-market-url="{{ url_for('resume.market') }}">
+    <fieldset>
+        <legend>Основная информация</legend>
+        <div class="grid">
+            <label>Имя и фамилия *
+                <input type="text" name="full_name" value="{{ resume.full_name }}" required>
+            </label>
+            <label>Желаемая должность
+                <input type="text" name="title" value="{{ resume.title }}" placeholder="Python-разработчик">
+            </label>
+            <label>Email
+                <input type="email" name="email" value="{{ resume.email }}">
+            </label>
+            <label>Телефон
+                <input type="tel" name="phone" value="{{ resume.phone }}">
+            </label>
+            <label>Город
+                <input type="text" name="location" value="{{ resume.location }}">
+            </label>
+            <label>Сайт / GitHub
+                <input type="text" name="website" value="{{ resume.website }}" placeholder="github.com/username">
+            </label>
+        </div>
+        <label>Фотография (JPEG, PNG или WEBP, до 5 МБ)
+            <input type="file" name="photo" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <label>О себе
+            <textarea name="summary" rows="12" data-autogrow>{{ resume.summary }}</textarea>
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Формат работы и зарплата</legend>
+        <div class="grid">
+            <label>Зарплатные ожидания от, ₽
+                <input type="number" name="salary_from" min="0" step="1000"
+                       value="{{ resume.salary_from or '' }}" placeholder="150000">
+            </label>
+            <label>до, ₽
+                <input type="number" name="salary_to" min="0" step="1000"
+                       value="{{ resume.salary_to or '' }}" placeholder="200000">
+            </label>
+        </div>
+        <div class="checkbox-group">
+            {% for option in employment_types %}
+            <label class="checkbox">
+                <input type="checkbox" name="employment" value="{{ option }}"
+                       {% if option in resume.employment %}checked{% endif %}>
+                {{ option }}
+            </label>
+            {% endfor %}
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Опыт работы</legend>
+        <div data-entries="experience">
+            {% for item in resume.experience or [None] %}
+            {{ experience_entry(item or {}) }}
+            {% endfor %}
+        </div>
+        <button type="button" class="btn-secondary" data-add-entry="experience">+ Добавить место работы</button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Образование</legend>
+        <div data-entries="education">
+            {% for item in resume.education or [None] %}
+            {{ education_entry(item or {}) }}
+            {% endfor %}
+        </div>
+        <button type="button" class="btn-secondary" data-add-entry="education">+ Добавить учебное заведение</button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Навыки и языки</legend>
+        <label>Навыки (через запятую)
+            <textarea name="skills" rows="2" placeholder="Python, Flask, PostgreSQL, Docker">{{ resume.skills | join(", ") }}</textarea>
+        </label>
+        <label>Уровень английского
+            <select name="english_level">
+                <option value="">Не указывать</option>
+                {% for code, label in english_levels.items() %}
+                <option value="{{ code }}" {% if resume.english_level == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </fieldset>
+
+    <button type="submit" class="btn-primary">Скачать PDF</button>
+</form>
+
+<aside class="market" aria-live="polite">
+    <h2>Анализ рынка</h2>
+    <p class="market-status" id="market-status">
+        Укажите желаемую должность, опыт и навыки — здесь появится ориентировочная зарплата
+        и подходящие вакансии.
+    </p>
+    <div id="market-result" hidden>
+        <p class="market-level" id="market-level"></p>
+
+        <h3>Ориентировочная зарплата</h3>
+        <div id="market-salary"></div>
+
+        <h3>Подходящие вакансии</h3>
+        <ul class="vacancies" id="market-vacancies"></ul>
+    </div>
+    <p class="market-source" id="market-source"></p>
+</aside>
+</div>
+
+<template id="template-experience">{{ experience_entry({}) }}</template>
+<template id="template-education">{{ education_entry({}) }}</template>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form.js') }}"></script>
+<script src="{{ url_for('static', filename='js/market.js') }}"></script>
+{% endblock %}
