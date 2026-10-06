@@ -79,7 +79,7 @@ resume/
 ## Запуск
 
 ```bash
-git clone https://github.com/<username>/resume.git
+git clone https://github.com/chstkvart/generate_resume.git
 cd resume
 
 python -m venv .venv
